@@ -72,24 +72,25 @@ async def change_phone(message, state):
 
 
 def get_users_id():
-    cur.execute(f'''SELECT id FROM general''')
-    spam_base = cur.fetchall()
-    return spam_base
+    cur.execute('SELECT id FROM general')
+    return cur.fetchall()
+
 
 def get_info(id):
     cur.execute(f'''SELECT full_name, phone FROM general WHERE id = {id}''')
-    info = cur.fetchall()
-    return info
+    return cur.fetchall()
+
 
 def user_is_blocked(id):
     cur.execute(f'''SELECT block FROM general WHERE id = {id}''')
     blocked = cur.fetchone()
-    if blocked == None:
+    if blocked is None:
         return False
     elif blocked[0] == 0:
-        return False 
+        return False
     else:
         return True
+
 
 def blacklist_user(id, action):
     if action == 'add':
@@ -105,8 +106,9 @@ def blacklist_user(id, action):
     else:
         pass
 
+
 def get_id(name):
     sql_get_query = '''SELECT id FROM general WHERE full_name = ?'''
-    cur.execute(sql_get_query,(name,))
+    cur.execute(sql_get_query, (name,))
     id = cur.fetchone()
     return id[0]

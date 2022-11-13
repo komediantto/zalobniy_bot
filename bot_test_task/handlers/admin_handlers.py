@@ -22,6 +22,7 @@ async def spam(message: types.Message, state: FSMContext):
     await message.answer('Введите текст рассылки:')
     await state.set_state(Admin.text)
 
+
 async def spam_execute(message: types.Message, state: Admin.text):
     spam_base = db.get_users_id()
     for i in range(len(spam_base)):
@@ -31,10 +32,12 @@ async def spam_execute(message: types.Message, state: Admin.text):
     await message.answer(text.ADMIN_PANEL,
                          parse_mode='HTML',
                          reply_markup=keyboards.admin_keyboard())
-    
+
+
 async def info(message: types.Message, state: FSMContext):
     await message.answer('Введите ID пользователя:')
     await state.set_state(Admin.id)
+
 
 async def get_info(message: types.Message, state: Admin.id):
     id = message.text
@@ -42,7 +45,8 @@ async def get_info(message: types.Message, state: Admin.id):
         info = db.get_info(id)
         name = info[0][0]
         phone = info[0][1]
-        await message.answer(f'<b>Имя и фамилия:</b> {name}\n<b>Номер телефона: {phone}</b>',
+        await message.answer(f'<b>Имя и фамилия:</b> {name}\n '
+                             f'<b>Номер телефона: {phone} </b>',
                              parse_mode='HTML',
                              reply_markup=keyboards.admin_keyboard())
         await state.finish()
@@ -50,9 +54,11 @@ async def get_info(message: types.Message, state: Admin.id):
         await message.answer('Введите корректный ID:')
         await state.set_state(Admin.id)
 
+
 async def blacklist(message: types.Message, state: FSMContext):
     await message.answer('Введите ID пользователя для блокировки:')
     await state.set_state(Admin.ban)
+
 
 async def blacklist_add(message: types.Message, state: Admin.ban):
     user_id = message.text
@@ -63,15 +69,17 @@ async def blacklist_add(message: types.Message, state: Admin.ban):
             await message.answer('Пользователь успешно заблокирован!')
         else:
             await state.update_data(ban=user_id)
-            await message.answer(f'Пользователь {user_id} уже заблокирован. Разблокировать?',
+            await message.answer(f'Пользователь {user_id} уже заблокирован. '
+                                 'Разблокировать?',
                                  reply_markup=keyboards.block_keyboard())
             await state.reset_state(with_data=False)
     except OperationalError:
         await message.answer('Введите корректный ID:')
         await state.set_state(Admin.ban)
 
+
 async def blacklist_remove(message: types.Message, state: Admin.ban):
-    current_data=await state.get_data()
+    current_data = await state.get_data()
     db.blacklist_user(current_data['ban'], 'remove')
     await message.answer('Пользователь успешно разблокирован')
     await state.finish()
@@ -79,11 +87,13 @@ async def blacklist_remove(message: types.Message, state: Admin.ban):
                          parse_mode='HTML',
                          reply_markup=keyboards.admin_keyboard())
 
+
 async def blacklist_dont_remove(message: types.Message, state: Admin.ban):
     await state.finish()
     await message.answer(text.ADMIN_PANEL,
                          parse_mode='HTML',
                          reply_markup=keyboards.admin_keyboard())
+
 
 def register(dp: Dispatcher):
     dp.register_message_handler(spam, Text(equals='Рассылка'))

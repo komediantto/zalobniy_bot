@@ -16,20 +16,23 @@ class Settings(StatesGroup):
     name = State()
     phone = State()
 
+
 async def settings(message: types.Message):
     id = str(message.from_user.id)
     if not db.user_is_blocked(id):
-        await message.answer(text.SETTINGS, 
-                            parse_mode='HTML',
-                            reply_markup=keyboards.inline_keyboard_settings())
+        await message.answer(text.SETTINGS,
+                             parse_mode='HTML',
+                             reply_markup=keyboards.inline_keyboard_settings())
     else:
         await message.answer('Вы были заблокированы администратором.')
+
 
 @dp.callback_query_handler(text='change_name')
 async def change_name(query: types.CallbackQuery, state: FSMContext):
     await query.message.answer(text.CHANGE_NAME, parse_mode='HTML')
     await state.set_state(Settings.name)
     await query.answer()
+
 
 async def get_new_name(message: types.Message, state: FSMContext):
     counter = message.text.count(' ')
@@ -46,13 +49,16 @@ async def get_new_name(message: types.Message, state: FSMContext):
         await db.change_name(message, state)
         await state.finish()
         await message.answer(text.NEW_NAME, parse_mode='HTML')
-        await message.answer(text.GREETINGS, reply_markup=keyboards.main_keyboard())
+        await message.answer(text.GREETINGS,
+                             reply_markup=keyboards.main_keyboard())
+
 
 @dp.callback_query_handler(text='change_phone')
-async def change_name(query: types.CallbackQuery, state: FSMContext):
+async def change_phone(query: types.CallbackQuery, state: FSMContext):
     await query.message.answer(text.CHANGE_PHONE, parse_mode='HTML')
     await state.set_state(Settings.phone)
     await query.answer()
+
 
 async def get_new_phone(message: types.Message, state: FSMContext):
     if len(message.text) != 12 or not message.text.startswith('+7'):
@@ -61,12 +67,16 @@ async def get_new_phone(message: types.Message, state: FSMContext):
     else:
         await db.change_phone(message, state)
         await message.answer(text.NEW_PHONE, parse_mode='HTML')
-        await message.answer(text.GREETINGS, reply_markup=keyboards.main_keyboard())
+        await message.answer(text.GREETINGS,
+                             reply_markup=keyboards.main_keyboard())
+
 
 @dp.callback_query_handler(text='settings_back')
 async def back(query: types.CallbackQuery):
-    await query.message.answer(text.GREETINGS, reply_markup=keyboards.main_keyboard())
+    await query.message.answer(text.GREETINGS,
+                               reply_markup=keyboards.main_keyboard())
     await query.answer()
+
 
 def register(dp: Dispatcher):
     dp.register_message_handler(settings, Text(equals='⚙️Настройки'))
